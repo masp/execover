@@ -1,18 +1,23 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 	"testing"
 
-	"github.com/masp/execover"
+	"github.com/masp/maintest"
 )
 
-var exe *execover.Exe
+var exe *maintest.Exe
+var debugFlag = maintest.DebugFlag("add.debug")
 
 func TestMain(m *testing.M) {
+	maintest.DebugLog = log.New(os.Stderr, "[maintest] ", 0)
+	flag.Parse()
+
 	var err error
-	exe, err = execover.Build("add")
+	exe, err = maintest.Build("add", *debugFlag)
 	if err != nil {
 		log.Fatalf("build error: %v", err)
 	}
@@ -25,9 +30,9 @@ func TestMain(m *testing.M) {
 }
 
 func TestAdd4(t *testing.T) {
-	out, _ := exe.Command("1", "3").CombinedOutput()
+	out, _ := exe.Command("1", "3").Output()
 	result := string(out[0])
 	if result != "4" {
-		t.Errorf("got %s, expected 4", result)
+		t.Errorf("got %s, expected 4", string(out))
 	}
 }
